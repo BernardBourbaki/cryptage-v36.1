@@ -6,6 +6,8 @@ Application Windows portable de chiffrement/déchiffrement utilisant AES-256-GCM
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
+![Interface Cryptage V36.1](screenshots/interface.png)
+
 ## 🔒 Sécurité
 
 - **Chiffrement** : AES-256-GCM (standard militaire)
