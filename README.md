@@ -1,54 +1,218 @@
 # Cryptage V36.1
 
-Application Windows de chiffrement/déchiffrement utilisant AES-256-GCM et Argon2id.
+Application Windows portable de chiffrement/déchiffrement utilisant AES-256-GCM et Argon2id.
+
+![Version](https://img.shields.io/badge/version-36.1-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## 🔒 Sécurité
 
-- **Chiffrement** : AES-256-GCM
-- **Dérivation de clé** : Argon2id  
+- **Chiffrement** : AES-256-GCM (standard militaire)
+- **Dérivation de clé** : Argon2id (résistant GPU/ASIC)
+- **Authentification** : Tag GCM (intégrité garantie)
 - **Formats supportés** : Texte (UTF-8), Images (JPG, PNG, BMP)
+- **Taille maximale** : 2 Mo par fichier
 
-## 📦 Utilisation
+## ✨ Fonctionnalités
 
-1. Télécharger l'exécutable depuis [Releases](../../releases)
-2. Lancer cryptage_v36.1.exe
-3. Suivre les instructions à l'écran
+- ✅ Interface colorée intuitive
+- ✅ Détection automatique de format
+- ✅ Extraction automatique du paramètre mémoire
+- ✅ Nettoyage automatique après export
+- ✅ Compatible versions V31-V36
+- ✅ 100% portable (aucune installation)
 
-## 📄 Documentation complète
+## 📦 Téléchargement
 
-Voir [README.txt](README.txt) pour la documentation détaillée.
+**Dernière version** : [Releases](../../releases)
 
-## 📜 Licence
+Téléchargez `cryptage_v36.1.exe` et lancez-le directement.
+Aucune installation nécessaire !
 
-© 2024 Bernard DÉMARET - Voir [LICENSE](LICENSE)
+## 🚀 Utilisation rapide
+
+### Chiffrer un fichier
+
+1. Créer un mot de passe fort (16+ caractères)
+2. Cliquer sur "Importer le fichier source"
+3. Sélectionner votre fichier
+4. Cliquer "Chiffrer"
+5. Sauvegarder en `.crypt`
+
+### Déchiffrer un fichier
+
+1. Cliquer sur "Importer le fichier source"
+2. Sélectionner le fichier `.crypt`
+3. Le paramètre mémoire est extrait automatiquement
+4. Entrer le mot de passe
+5. Cliquer "Déchiffrer"
+6. Exporter (Texte ou Image)
+
+## 📖 Documentation complète
+
+Pour la documentation détaillée, consultez [README.txt](README.txt)
+
+## 🔐 Sécurité et Bonnes Pratiques
+
+⚠️ **IMPORTANT** : La sécurité dépend de votre mot de passe !
+
+**Recommandations** :
+- Utilisez un gestionnaire de mots de passe (KeePass recommandé)
+- Mots de passe de 16+ caractères (idéal : 60 caractères)
+- Ne transmettez JAMAIS mot de passe et fichier par le même canal
+- Consultez le Guide de Sécurité dans la documentation
+
+## 📊 Spécifications Techniques
 ```
+Algorithmes :
+  Chiffrement    : AES-256-GCM
+  KDF            : Argon2id
+  CSPRNG         : OpenSSL RAND_bytes
+
+Paramètres Argon2id :
+  Iterations     : 2
+  Memory         : Configurable (défaut: 25% RAM)
+  Parallelism    : 1
+
+Structure fichier .crypt :
+  Version        : 361 (V36.1)
+  En-tête AAD    : 28 octets
+  Sel            : 16 octets
+  Nonce          : 12 octets
+  Tag GCM        : 16 octets
+  Données        : Variable (max 2 Mo)
 ```
-4. En bas : "Commit changes"
+
+## 🏗️ Compilation
+
+### Prérequis
+- MinGW-w64
+- OpenSSL 1.1.1+
+
+### Commande
+```bash
+gcc -o cryptage_v36.1.exe Cryptage_UI.c Cryptage_Core.c \
+    -I./openssl/include \
+    -L./openssl/lib \
+    -lssl -lcrypto \
+    -lgdi32 -lcomctl32 \
+    -mwindows \
+    -static \
+    -O2
 ```
+
+## 📜 Changelog
+
+### Version 36.1 (Décembre 2024)
+
+**Nouveautés** :
+- Nettoyage automatique après sauvegarde
+- Extraction automatique du paramètre mémoire
+- Support amélioré fichiers .txt hex
+- Validation renforcée des formats
+
+**Corrections** :
+- Import fichiers .crypt V36.1
+- Déchiffrement fichiers hex
+- Gestion mémoire résiduelle
+
+## 📄 Licence
+
+MIT License - © 2024 Bernard DÉMARET
+
+Voir [LICENSE](LICENSE) pour les détails complets.
+
+## ⚠️ Avertissement
+
+Ce logiciel est fourni "tel quel" sans garantie d'aucune sorte.
+L'auteur décline toute responsabilité en cas de perte de données.
+
+**Utilisez à vos propres risques.**
+
+## 🙏 Remerciements
+
+- OpenSSL Project pour la bibliothèque cryptographique
+- Communauté Argon2 pour le KDF
+- Claude (Anthropic) pour l'assistance au développement
+
+## 📞 Support
+
+- **Issues** : [Signaler un bug](../../issues)
+- **Discussions** : [Forum](../../discussions)
 
 ---
 
-## 🎯 Vous avez maintenant un projet sur GitHub !
+⭐ Si ce projet vous est utile, n'hésitez pas à lui donner une étoile !
+```
 
-**Résultat :**
-- ✅ Code source visible
-- ✅ Documentation
-- ✅ Licence claire
-- ✅ Transparent et professionnel
+### 8.3 Sauvegarder
+```
+En bas de la page :
+1. Commit message : "Amélioration du README"
+2. Cliquer "Commit changes"
+```
 
-**Et vous n'avez utilisé que l'interface web, aucune ligne de commande !**
+✅ **Votre README.md est maintenant professionnel !**
 
 ---
 
-## 📊 Explication visuelle
-```
-VOTRE ORDINATEUR                    GITHUB (web)
-─────────────────                   ─────────────
+## ÉTAPE 9 : Créer votre première Release (avec l'exécutable)
 
-cryptage_v36.1/                     Votre dépôt GitHub
-├── Cryptage.h          ─upload→    ├── Cryptage.h
-├── Cryptage_Core.c     ─upload→    ├── Cryptage_Core.c  
-├── Cryptage_UI.c       ─upload→    ├── Cryptage_UI.c
-└── README.txt          ─upload→    ├── README.txt
-                                    ├── README.md  ← Créé par GitHub
-                                    └── LICENSE    ← Créé par GitHub
+### 9.1 Aller dans Releases
+```
+Sur la page principale de votre dépôt :
+→ À droite, dans la colonne "About"
+→ Cliquer sur "Releases" (ou "Create a new release")
+```
+
+### 9.2 Créer la release
+```
+┌──────────────────────────────────────────────────┐
+│  Create a new release                            │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│  Choose a tag                                    │
+│  ┌────────────────┐                              │
+│  │ v36.1         │  ← TAPEZ ICI                  │
+│  └────────────────┘                              │
+│  Create new tag: v36.1 on publish                │
+│                                                  │
+│  Release title                                   │
+│  ┌────────────────────────────────────────────┐  │
+│  │ Cryptage V36.1 - Version stable            │  │
+│  └────────────────────────────────────────────┘  │
+│                                                  │
+│  Describe this release                           │
+│  ┌────────────────────────────────────────────┐  │
+│  │ ## Version 36.1                            │  │
+│  │                                            │  │
+│  │ Première version publique open source      │  │
+│  │                                            │  │
+│  │ ### Nouveautés                             │  │
+│  │ - Nettoyage automatique après export       │  │
+│  │ - Extraction auto paramètre mémoire        │  │
+│  │                                            │  │
+│  │ ### Téléchargement                         │  │
+│  │ `cryptage_v36.1.exe` - Windows 64-bit      │  │
+│  └────────────────────────────────────────────┘  │
+│                                                  │
+│  Attach binaries                                 │
+│  ┌────────────────────────────────────────────┐  │
+│  │ Drag files here or click to upload         │  │
+│  └────────────────────────────────────────────┘  │
+│                                                  │
+│  [ Publish release ]                             │
+└──────────────────────────────────────────────────┘
+```
+
+### 9.3 Remplir les informations
+
+**Tag** :
+```
+v36.1
+```
+
+**Release title** :
+```
+Cryptage V36.1 - Version stable
