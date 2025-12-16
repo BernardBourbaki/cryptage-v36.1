@@ -4,9 +4,8 @@
 
 | Version | Support          |
 | ------- | ---------------- |
-| 36.1    | ✅ Supportée     |
-| 36.0    | ✅ Supportée     |
-| < 36.0  | ❌ Non supportée |
+|  37.0   | ✅ Supportée     |
+| < 37.0  | ❌ Non supportée |
 
 ## Signaler une Vulnérabilité
 
