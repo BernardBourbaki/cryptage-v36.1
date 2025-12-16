@@ -133,7 +133,7 @@ Le logiciel calcule automatiquement le paramètre mémoire optimal :
 
 ⚠️ **V37 ne déchiffre PAS les fichiers V31-V36**
 
-Pour déchiffrer d'anciens fichiers, téléchargez [Cryptage V36.1](https://github.com/BernardBourbaki/cryptage-v36.1)
+Pour déchiffrer d'anciens fichiers, téléchargez [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1)
 
 ## 🐛 Problèmes connus
 
@@ -164,4 +164,5 @@ Ce logiciel est fourni "tel quel", sans garantie d'aucune sorte. L'auteur ne peu
 
 
 **[English version](README.en.md)** 🇬🇧
+
 
