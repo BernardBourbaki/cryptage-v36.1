@@ -18,7 +18,7 @@
 ### Compatibilité des versions
 
 - **V37** : Déchiffre **UNIQUEMENT** les fichiers `.crypt` créés avec V37
-- **V31-V36** : Utilisez [Cryptage V36.1](https://github.com/BernardBourbaki/cryptage-v36.1) pour déchiffrer les anciens fichiers
+- **V31-V36** : Utilisez [Cryptage V36.1](https://github.com/BernardBourbaki/Cryptage/releases/tag/v36.1) pour déchiffrer les anciens fichiers
 
 ### Limites
 
@@ -161,5 +161,6 @@ Ce projet est sous licence MIT. Voir [LICENSE](LICENSE) pour plus de détails.
 Ce logiciel est fourni "tel quel", sans garantie d'aucune sorte. L'auteur ne peut être tenu responsable de toute perte de données. **Conservez toujours des sauvegardes de vos fichiers originaux.**
 
 ---
+
 
 **[English version](README.en.md)** 🇬🇧
