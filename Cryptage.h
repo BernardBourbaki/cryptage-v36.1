@@ -1,177 +1,350 @@
+/**
+ * Cryptage.h
+ * Header principal - Version 37 (Interface unique)
+ * (c) Bernard D…MARET - 2025
+ */
+
 #ifndef CRYPTAGE_H
 #define CRYPTAGE_H
 
-#include <winsock2.h>
+/* ========================================
+ * INCLUDES SYST»ME
+ * ======================================== */
+
+#include <winsock2.h>        // IMPORTANT : avant windows.h
 #include <windows.h>
-#include <commctrl.h>
 #include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <errno.h>
+
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include <openssl/kdf.h>
 
-#define ID_KEY_EDIT         101
-#define ID_INPUT_EDIT       102
-#define ID_OUTPUT_EDIT      103
-#define ID_ENCRYPT_BTN      104
-#define ID_DECRYPT_BTN      105
-#define ID_SAVE_BIN_BTN     106
-#define ID_SAVE_HEX_BTN     107
-#define ID_TOGGLE_PWD_BTN   108
-#define ID_CLEAR_BTN        111
-#define ID_MEMORY_EDIT      112
-#define ID_PROGRESS_BAR     113
-#define ID_EDIT_TEXT_BTN    115
-#define ID_EXPORT_IMG_BTN   117
-#define ID_IMPORT_AUTO_BTN  118        // Nouveau bouton d'import automatique
+/* ========================================
+ * CONSTANTES CRYPTOGRAPHIQUES
+ * ======================================== */
 
-#define WM_USER_PROGRESS    (WM_USER + 1)
-#define WM_USER_COMPLETE    (WM_USER + 2)
+// Tailles des ÈlÈments cryptographiques
+#define SALT_LEN                32      // Longueur du sel Argon2id
+#define NONCE_LEN               12      // Longueur du nonce AES-GCM
+#define TAG_LEN                 16      // Longueur du tag d'authentification
+#define KEY_LEN                 32      // Longueur de la clÈ AES-256
 
-#define MAX_PASSWORD_LEN    64
-#define MAX_TEXT_LEN        2097152
-#define SALT_LEN            16
-#define NONCE_LEN           12
-#define TAG_LEN             16
-#define DERIVED_KEY_LEN     32
-#define HEX_COLUMNS         16
-#define ARGON2_T_COST       2
-#define ARGON2_PARALLELISM  1
-#define VERSION             361        // Version 36.1 - Interface unifi√©e + import auto
-#define AAD_LEN             28
-#define EXTENSION_CODE_OFFSET 24
-#define DEFAULT_MEMORY_COST_KIB 16384
+// ParamËtres Argon2id
+#define DEFAULT_MEMORY_COST_KIB 16384   // 16 Mo par dÈfaut
+#define TIME_COST               3       // 3 itÈrations
+#define PARALLELISM             1       // 1 thread
 
-#define EXT_JPG  0x4A504720
-#define EXT_PNG  0x504E4720
-#define EXT_BMP  0x424D5020
-#define EXT_NONE 0x00000000
+// CompatibilitÈ noms alternatifs (pour Cryptage_Core.c)
+#define ARGON2_T_COST           TIME_COST
+#define ARGON2_PARALLELISM      PARALLELISM
+#define DERIVED_KEY_LEN         KEY_LEN
 
-typedef struct SecureMemNode {
+// Longueur des donnÈes additionnelles authentifiÈes (AAD)
+#define AAD_LEN                 24      // Version(4) + Reserved(16) + MemKiB(4)
+
+// Offsets dans l'AAD
+#define VERSION_OFFSET          0       // Offset de la version
+#define EXTENSION_CODE_OFFSET   4       // Offset du code d'extension (rÈservÈ)
+#define MEMORY_OFFSET           20      // Offset du paramËtre mÈmoire
+
+// Codes d'extension d'images (dans la zone rÈservÈe AAD)
+#define EXT_NONE                0
+#define EXT_JPG                 1
+#define EXT_PNG                 2
+#define EXT_BMP                 3
+
+// Formatage hexadÈcimal
+#define HEX_COLUMNS             16      // 16 octets par ligne
+
+// Limites
+#define MAX_PASSWORD_LEN        64
+#define MAX_TEXT_LEN            (10 * 1024 * 1024)  // 10 Mo
+
+/* ========================================
+ * STRUCTURE DES DONN…ES CHIFFR…ES V37
+ * ======================================== */
+
+/**
+ * Format du fichier cryptÈ :
+ * 
+ * [AAD - 24 octets]
+ *   - Version (4 octets, little-endian) : 370
+ *   - RÈservÈ (16 octets) : extensibilitÈ future
+ *   - MemKiB (4 octets, little-endian) : paramËtre mÈmoire Argon2id
+ * 
+ * [SALT - 32 octets]
+ *   - Sel alÈatoire pour Argon2id
+ * 
+ * [NONCE - 12 octets]
+ *   - Nonce alÈatoire pour AES-GCM
+ * 
+ * [CIPHERTEXT - longueur variable]
+ *   - DonnÈes chiffrÈes
+ * 
+ * [TAG - 16 octets]
+ *   - Tag d'authentification AES-GCM
+ */
+
+#define CURRENT_VERSION         370     // Version actuelle : 37.0
+#define VERSION                 CURRENT_VERSION
+
+/* ========================================
+ * MESSAGES WINDOWS PERSONNALIS…S
+ * ======================================== */
+
+#define WM_USER_PROGRESS        (WM_USER + 1)
+#define WM_USER_COMPLETE        (WM_USER + 2)
+
+/* ========================================
+ * INCLUDE DES STRUCTURES D'…TAT
+ * ======================================== */
+
+#include "Cryptage_State.h"
+
+/* ========================================
+ * D…CLARATIONS DES FONCTIONS CRYPTOGRAPHIQUES
+ * (Cryptage_Core.c)
+ * ======================================== */
+
+/**
+ * Initialise OpenSSL en mode portable
+ */
+BOOL init_portable_openssl(void);
+
+/**
+ * Chiffre des donnÈes avec AES-256-GCM + Argon2id
+ */
+unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, 
+                           size_t plaintext_len, const char* password,
+                           size_t* ciphertext_len, unsigned int mem_kib);
+
+/**
+ * DÈchiffre des donnÈes avec AES-256-GCM + Argon2id
+ * 
+ * @return 0 en cas de succËs, 1 si mot de passe incorrect, -1 en cas d'erreur
+ */
+int decrypt_data(HWND hwnd, const unsigned char* ciphertext, 
+                size_t ciphertext_len, const char* password,
+                unsigned char** plaintext, size_t* plaintext_len,
+                unsigned int mem_kib);
+
+/* ========================================
+ * UTILITAIRES CRYPTOGRAPHIQUES
+ * ======================================== */
+
+/**
+ * VÈrifie la robustesse d'un mot de passe
+ * CritËres : 8-64 caractËres, maj+min+chiffre+symbole
+ */
+BOOL is_password_strong(const char* password);
+
+/**
+ * Lit un entier 32 bits en little-endian
+ */
+uint32_t read_uint32_le(const unsigned char* buf);
+
+/**
+ * …crit un entier 32 bits en little-endian
+ */
+void write_uint32_le(unsigned char* buf, uint32_t value);
+
+/* ========================================
+ * GESTION M…MOIRE S…CURIS…E
+ * (Cryptage_Core.c)
+ * ======================================== */
+
+/**
+ * Initialise le systËme de gestion mÈmoire sÈcurisÈe
+ */
+void secure_mem_init(void);
+
+/**
+ * Nettoie le systËme de gestion mÈmoire sÈcurisÈe
+ */
+void secure_mem_cleanup(void);
+
+/**
+ * Alloue de la mÈmoire sÈcurisÈe (non swappable)
+ */
+void* secure_malloc(HWND hwnd, size_t size, BOOL zero_on_free);
+
+/**
+ * LibËre de la mÈmoire sÈcurisÈe
+ */
+void secure_free(void* ptr);
+
+/**
+ * Efface puis libËre de la mÈmoire sÈcurisÈe
+ */
+void secure_clean_and_free(void* ptr, size_t size);
+
+/**
+ * RÈcupËre le texte d'un contrÙle Edit de maniËre sÈcurisÈe
+ */
+char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* error_title, 
+                           size_t max_len);
+
+/**
+ * DÈfinit le texte d'un contrÙle Edit de maniËre sÈcurisÈe
+ */
+void secure_set_edit_text(HWND hEdit, const char* text, size_t text_len);
+
+/* ========================================
+ * CONVERSION HEXAD…CIMAL
+ * (Cryptage_Core.c)
+ * ======================================== */
+
+/**
+ * Convertit des donnÈes binaires en hexadÈcimal
+ */
+char* bin_to_hex(const unsigned char* bin, size_t bin_len);
+
+/**
+ * Convertit une chaÓne hexadÈcimale en binaire
+ */
+int hex_to_bin(const char* hex, unsigned char** bin, size_t* bin_len);
+
+/**
+ * VÈrifie si une chaÓne est hexadÈcimale valide
+ */
+BOOL is_valid_hex(const char* hex);
+
+/* ========================================
+ * GESTION DES FICHIERS
+ * (Cryptage_Core.c)
+ * ======================================== */
+
+/**
+ * Charge un fichier de maniËre sÈcurisÈe
+ */
+BOOL load_file_secure(const char* filename, unsigned char** data, 
+                      size_t* len, HWND hwnd, BOOL text_mode);
+
+/**
+ * VÈrifie les opÈrations sur fichiers
+ */
+BOOL check_file_operations(FILE* fp, const char* operation, HWND hwnd);
+
+/* ========================================
+ * FONCTIONS UI COMMUNES
+ * (Cryptage_UI_Common.c)
+ * ======================================== */
+
+// Messages
+void show_error(HWND hwnd, const char* message, const char* title);
+void show_success(HWND hwnd, const char* message, const char* title);
+void display_openssl_error(HWND hwnd, const char* operation);
+
+// Dialogues de fichiers
+BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size, 
+                      const char* filter, const char* ext, BOOL save);
+
+// Barre de progression
+void update_progress_bar(HWND hwnd, AppContext* ctx, int percent);
+void reset_progress_bar(AppContext* ctx);
+
+// Mot de passe
+void toggle_password_visibility(AppContext* ctx);
+
+// MÈmoire Argon2id
+void update_memory_default(AppContext* ctx);
+unsigned int get_memory_param(AppContext* ctx);
+
+// Sauvegarde de fichiers
+BOOL save_binary_file_secure(const char* filename, const unsigned char* data, 
+                              size_t data_len, HWND hwnd);
+BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit);
+BOOL save_image_file_secure(const char* filename, const unsigned char* data, 
+                             size_t data_len, const char* extension, HWND hwnd);
+
+// DÈtection de type
+FileType detect_file_type(const unsigned char* data, size_t data_len, 
+                          AppContext* ctx);
+
+// RÈinitialisation
+void reset_decrypt_state(AppContext* ctx);
+void handle_clear(AppContext* ctx);
+
+// OpÈrations crypto
+void cleanup_crypto_operation(CryptoOperation* op);
+
+// Polices
+void create_fonts(AppContext* ctx);
+void destroy_fonts(AppContext* ctx);
+
+/* ========================================
+ * INTERFACE UTILISATEUR
+ * (Cryptage_UI.c)
+ * ======================================== */
+
+/**
+ * ProcÈdure de fenÍtre principale
+ */
+LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+/**
+ * CrÈe les contrÙles de l'interface
+ */
+void create_ui_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx);
+
+/**
+ * Met ‡ jour l'Ètat des boutons
+ */
+void update_buttons(AppContext* ctx);
+
+/* ========================================
+ * REGISTRE DE M…MOIRE S…CURIS…E
+ * ======================================== */
+
+typedef struct SecureMemEntry {
     void* ptr;
     size_t size;
-    struct SecureMemNode* next;
-} SecureMemNode;
+    BOOL zero_on_free;
+    struct SecureMemEntry* next;
+} SecureMemEntry;
+
+typedef SecureMemEntry SecureMemNode;
 
 typedef struct {
-    SecureMemNode* head;
-    CRITICAL_SECTION cs;
+    SecureMemEntry* head;
+    CRITICAL_SECTION lock;
     BOOL initialized;
 } SecureMemRegistry;
 
-typedef struct {
-    HWND hKeyEdit, hInputEdit, hOutputEdit, hMemoryEdit, hTogglePwdBtn, hProgressBar;
-    BOOL pwdVisible;
-    HFONT hFont;
-    int progress;
-    unsigned int default_mem_kib;
-    unsigned char* loaded_data;
-    size_t loaded_len;
-    BOOL operation_in_progress;
-    char* original_extension;
-    size_t original_extension_len;
-    BOOL decrypt_attempt_failed;
-} AppContext;
+/* ========================================
+ * MACROS UTILITAIRES
+ * ======================================== */
 
-typedef struct {
-    HWND hwnd;
-    AppContext* ctx;
-    unsigned char* text;
-    size_t text_len;
-    char* password;
-    unsigned int mem_kib;
-    unsigned char* result;
-    size_t result_len;
-    BOOL is_encrypt;
-    HANDLE hThread;
-    DWORD thread_result;
-    BOOL completed;
-} CryptoOperation;
+#define SECURE_ZERO(ptr, size) \
+    do { \
+        if ((ptr) && (size) > 0) { \
+            SecureZeroMemory((ptr), (size)); \
+        } \
+    } while(0)
 
-void secure_mem_init(void);
-void secure_mem_cleanup(void);
-void* secure_malloc(HWND hwnd, size_t size, BOOL force_lock);
-void secure_free(void* ptr);
-void secure_clean_and_free(void* ptr, size_t size);
+#define IS_VALID_PTR(ptr) ((ptr) != NULL)
 
-char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* context, size_t max_len);
-void secure_set_edit_text(HWND hEdit, const char* text, size_t len);
+#define MIN_ENCRYPTED_SIZE (AAD_LEN + SALT_LEN + NONCE_LEN + TAG_LEN)
 
-char* bin_to_hex(const unsigned char* data, size_t len);
-int hex_to_bin(const char* input, unsigned char** output, size_t* out_len);
-int is_valid_hex(const char* hex);
+/* ========================================
+ * D…CLARATIONS POUR LA COMPATIBILIT…
+ * ======================================== */
 
-unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t plaintext_len, const char* password, size_t* out_len, unsigned int memory_cost_kib);
-int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const char* password, unsigned char** output, size_t* out_len, unsigned int memory_cost_kib);
-int derive_key_argon2id(const char* password, const unsigned char* salt, unsigned char* enc_key, unsigned int memory_cost_kib);
-
-void secure_clean(void* data, size_t size);
-int is_password_strong(const char* pwd);
-int validate_encrypted_data(const unsigned char* input, size_t input_len, unsigned int memory_cost_kib);
-
-void write_uint32_le(unsigned char* buf, uint32_t value);
-uint32_t read_uint32_le(const unsigned char* buf);
-
-uint32_t get_extension_code(const char* ext);
-const char* get_extension_from_code(uint32_t code);
-int validate_encrypted_data_v32(const unsigned char* input, size_t input_len, unsigned int memory_cost_kib, uint32_t* extracted_ext_code);
-
-const char* extract_file_extension(const char* filename);
-
-BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_len, HWND hwnd, BOOL show_success);
-BOOL is_text_file(const char* filename);
-BOOL is_image_file(const char* filename);
-BOOL validate_image_format(const unsigned char* data, size_t data_len, const char* expected_ext);
-BOOL validate_decrypted_image_data(const unsigned char* data, size_t len, const char* expected_ext);
-
-void show_error(HWND hwnd, const char* message, const char* title);
-void display_openssl_error(HWND hwnd, const char* operation);
-void create_window_controls(HWND hwnd, HINSTANCE hInstance, AppContext* ctx);
-void update_memory_default(AppContext* ctx);
-void toggle_password_visibility(AppContext* ctx);
-void update_progress_bar(HWND hwnd, AppContext* ctx, int percent);
-
-void handle_encrypt(HWND hwnd, AppContext* ctx);
-void handle_decrypt(HWND hwnd, AppContext* ctx);
-void handle_save_binary(HWND hwnd, AppContext* ctx);
-void handle_save_hex(HWND hwnd, AppContext* ctx);
-void handle_clear(AppContext* ctx);
-void handle_edit_text(HWND hwnd, AppContext* ctx);
-void handle_export_image(HWND hwnd, AppContext* ctx);
-void handle_import_auto(HWND hwnd, AppContext* ctx);        // Nouvelle fonction
-
-DWORD WINAPI encrypt_thread(LPVOID lpParam);
-DWORD WINAPI decrypt_thread(LPVOID lpParam);
-void cleanup_crypto_operation(CryptoOperation* op);
-
-void handle_operation_complete_v326(HWND hwnd, AppContext* ctx, WPARAM wParam, LPARAM lParam);
-
-BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit);
-BOOL save_binary_file_secure(const char* filename, const unsigned char* data, size_t data_len, HWND hwnd);
-BOOL save_hex_file_secure(const char* filename, const char* hex, HWND hwnd);
-BOOL save_image_file_secure(const char* filename, const unsigned char* data, size_t data_len, const char* extension, HWND hwnd);
-
-BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size, const char* filter, const char* ext, BOOL save);
-
-BOOL check_virtuallock_result(void* ptr, size_t size, HWND hwnd);
-BOOL check_file_operations(FILE* fp, const char* operation, HWND hwnd);
-void reset_decrypt_state(AppContext* ctx);
-
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
-
-/*
- * HISTORIQUE DES CORRECTIONS V35:
- * 
- * NOUVEAUT√â : Interface enti√®rement repens√©e et simplifi√©e
- * NOUVEAUT√â : Bouton unique "Importer le fichier source" avec d√©tection automatique (texte, image, crypt√©)
- * AM√âLIORATION : Labels "Entr√©e :" et "Sortie :" plus neutres et coh√©rents
- * ERGONOMIE : Disposition logique et √©pur√©e de la colonne droite
- * TITRE : Cryptage Version 35 (Portable) (c) Bernard D√âMARET
- */
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
+                   LPSTR lpCmdLine, int nCmdShow);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CRYPTAGE_H */
