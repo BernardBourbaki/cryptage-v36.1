@@ -1,8 +1,8 @@
 /**
  * Cryptage_Core.c
  * Algorithmes cryptographiques et fonctions de base
- * Version 37
- * (c) Bernard DÉMARET - 2025
+ * Version 371
+ * (c) Bernard DÃ‰MARET - 2025
  */
 
 #include "Cryptage.h"
@@ -10,7 +10,7 @@
 #include <openssl/core_names.h>
 #include <windows.h>
 
-// Déclaration anticipée
+// DÃ©claration anticipÃ©e
 static BOOL check_virtuallock_result(void* ptr, size_t size, HWND hwnd);
 
 static SecureMemRegistry g_secureRegistry = {NULL, {0}, FALSE};
@@ -60,14 +60,14 @@ void* secure_malloc(HWND hwnd, size_t size, BOOL force_lock) {
     }
     void* ptr = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!ptr) {
-        if (hwnd) show_error(hwnd, "Échec de l'allocation mémoire sécurisée", "Erreur Mémoire");
+        if (hwnd) show_error(hwnd, "Ã‰chec de l'allocation mÃ©moire sÃ©curisÃ©e", "Erreur MÃ©moire");
         return NULL;
     }
     SecureZeroMemory(ptr, size);
     SecureMemNode* node = malloc(sizeof(SecureMemNode));
     if (!node) {
         VirtualFree(ptr, 0, MEM_RELEASE);
-        if (hwnd) show_error(hwnd, "Échec de l'allocation du nœud de registre mémoire", "Erreur Mémoire");
+        if (hwnd) show_error(hwnd, "Ã‰chec de l'allocation du nÅ“ud de registre mÃ©moire", "Erreur MÃ©moire");
         return NULL;
     }
     node->ptr = ptr;
@@ -130,7 +130,7 @@ BOOL check_virtuallock_result(void* ptr, size_t size, HWND hwnd) {
 BOOL check_file_operations(FILE* fp, const char* operation, HWND hwnd) {
     if (!fp) {
         char error_msg[512];
-        snprintf(error_msg, sizeof(error_msg), "Échec de %s : %s", operation, strerror(errno));
+        snprintf(error_msg, sizeof(error_msg), "Ã‰chec de %s : %s", operation, strerror(errno));
         if (hwnd) show_error(hwnd, error_msg, "Erreur Fichier");
         return FALSE;
     }
@@ -140,7 +140,7 @@ BOOL check_file_operations(FILE* fp, const char* operation, HWND hwnd) {
 char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* context, size_t max_len) {
     int wide_len = GetWindowTextLengthW(hEdit);
     if (wide_len > (int)max_len) {
-        show_error(hwnd, "Entrée trop longue : dépasse la limite maximale (10 Mo pour données, 64 caractères pour mot de passe)", context);
+        show_error(hwnd, "EntrÃ©e trop longue : dÃ©passe la limite maximale (10 Mo pour donnÃ©es, 64 caractÃ¨res pour mot de passe)", context);
         return NULL;
     }
     
@@ -152,13 +152,13 @@ char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* context, size_t ma
     
     wchar_t* wide_text = (wchar_t*)secure_malloc(hwnd, (wide_len + 1) * sizeof(wchar_t), TRUE);
     if (!wide_text) {
-        show_error(hwnd, "Échec de l'allocation mémoire sécurisée pour le texte UTF-16", context);
+        show_error(hwnd, "Ã‰chec de l'allocation mÃ©moire sÃ©curisÃ©e pour le texte UTF-16", context);
         return NULL;
     }
     
     int chars_copied = GetWindowTextW(hEdit, wide_text, wide_len + 1);
     if (chars_copied != wide_len) {
-        show_error(hwnd, "Erreur lors de la récupération du texte", context);
+        show_error(hwnd, "Erreur lors de la rÃ©cupÃ©ration du texte", context);
         secure_free(wide_text);
         return NULL;
     }
@@ -171,14 +171,14 @@ char* secure_get_edit_text(HWND hEdit, HWND hwnd, const char* context, size_t ma
     }
     
     if (context && strstr(context, "Chiffrement") && utf8_len > MAX_TEXT_LEN) {
-        show_error(hwnd, "Texte trop long après conversion UTF-8 : dépasse la limite de 10 Mo", context);
+        show_error(hwnd, "Texte trop long aprÃ¨s conversion UTF-8 : dÃ©passe la limite de 10 Mo", context);
         secure_free(wide_text);
         return NULL;
     }
     
     char* utf8_text = secure_malloc(hwnd, utf8_len + 1, TRUE);
     if (!utf8_text) {
-        show_error(hwnd, "Échec de l'allocation mémoire sécurisée pour le texte UTF-8", context);
+        show_error(hwnd, "Ã‰chec de l'allocation mÃ©moire sÃ©curisÃ©e pour le texte UTF-8", context);
         secure_free(wide_text);
         return NULL;
     }
@@ -497,7 +497,7 @@ const char* extract_file_extension(const char* filename) {
 
 unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t plaintext_len, const char* password, size_t* out_len, unsigned int memory_cost_kib) {
     if (plaintext_len > MAX_TEXT_LEN) {
-        show_error(hwnd, "Données trop longues : limite de 10 Mo dépassée. Divisez votre fichier ou utilisez un outil adapté.", "Erreur Chiffrement");
+        show_error(hwnd, "DonnÃ©es trop longues : limite de 10 Mo dÃ©passÃ©e. Divisez votre fichier ou utilisez un outil adaptÃ©.", "Erreur Chiffrement");
         return NULL;
     }
     
@@ -510,13 +510,13 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
     if (!enc_key) return NULL;
     
     if (!RAND_bytes(salt, SALT_LEN) || !RAND_bytes(nonce, NONCE_LEN)) {
-        display_openssl_error(hwnd, "Génération de sel ou nonce");
+        display_openssl_error(hwnd, "GÃ©nÃ©ration de sel ou nonce");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         return NULL;
     }
     
     if (!derive_key_argon2id(password, salt, enc_key, memory_cost_kib)) {
-        display_openssl_error(hwnd, "Dérivation de la clé");
+        display_openssl_error(hwnd, "DÃ©rivation de la clÃ©");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         return NULL;
     }
@@ -545,7 +545,7 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
     
     ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
-        show_error(hwnd, "Échec de l'allocation du contexte OpenSSL", "Erreur Chiffrement");
+        show_error(hwnd, "Ã‰chec de l'allocation du contexte OpenSSL", "Erreur Chiffrement");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         return NULL;
     }
@@ -569,7 +569,7 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
     }
 
     if (EVP_EncryptUpdate(ctx, NULL, &len, aad_data, AAD_LEN) != 1) {
-        display_openssl_error(hwnd, "Fourniture des données associées (AAD)");
+        display_openssl_error(hwnd, "Fourniture des donnÃ©es associÃ©es (AAD)");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         secure_free(ciphertext);
         EVP_CIPHER_CTX_free(ctx);
@@ -577,7 +577,7 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
     }
 
     if (EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, (int)plaintext_len) != 1) {
-        display_openssl_error(hwnd, "Chiffrement des données");
+        display_openssl_error(hwnd, "Chiffrement des donnÃ©es");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         secure_free(ciphertext);
         EVP_CIPHER_CTX_free(ctx);
@@ -596,7 +596,7 @@ unsigned char* encrypt_data(HWND hwnd, const unsigned char* plaintext, size_t pl
 
     unsigned char tag[TAG_LEN];
     if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, TAG_LEN, tag) != 1) {
-        display_openssl_error(hwnd, "Récupération de la balise GCM");
+        display_openssl_error(hwnd, "RÃ©cupÃ©ration de la balise GCM");
         secure_clean_and_free(enc_key, DERIVED_KEY_LEN);
         secure_free(ciphertext);
         EVP_CIPHER_CTX_free(ctx);
@@ -646,7 +646,7 @@ int decrypt_data(HWND hwnd, const unsigned char* input, size_t input_len, const 
         return 2;
     }
 
-    // Utiliser le paramètre stocké dans le fichier
+    // Utiliser le paramÃ¨tre stockÃ© dans le fichier
     memory_cost_kib = stored_mem_kib;
 
     uint32_t ciphertext_len = read_uint32_le(input + 16);
@@ -752,19 +752,19 @@ BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_l
 
     long file_size = ftell(fp);
     if (file_size < 0) {
-    show_error(hwnd, "Erreur lors de la détermination de la taille du fichier", "Erreur Chargement");
+    show_error(hwnd, "Erreur lors de la dÃ©termination de la taille du fichier", "Erreur Chargement");
     fclose(fp);
     return FALSE;
     }
 
     if (file_size > MAX_TEXT_LEN) {
-        show_error(hwnd, "Fichier trop volumineux : limite de 10 Mo dépassée. Divisez votre fichier ou utilisez un outil adapté.", "Erreur Chargement");
+        show_error(hwnd, "Fichier trop volumineux : limite de 10 Mo dÃ©passÃ©e. Divisez votre fichier ou utilisez un outil adaptÃ©.", "Erreur Chargement");
         fclose(fp);
         return FALSE;
     }
 
     if (fseek(fp, 0, SEEK_SET) != 0) {
-        show_error(hwnd, "Erreur lors du retour au début du fichier", "Erreur Chargement");
+        show_error(hwnd, "Erreur lors du retour au dÃ©but du fichier", "Erreur Chargement");
         fclose(fp);
         return FALSE;
     }
@@ -778,11 +778,11 @@ BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_l
     size_t bytes_read = fread(*data, 1, (size_t)file_size, fp);
 
     if (fclose(fp) != 0) {
-        show_error(hwnd, "Avertissement : échec de la fermeture propre du fichier", "Avertissement");
+        show_error(hwnd, "Avertissement : Ã©chec de la fermeture propre du fichier", "Avertissement");
     }
 
     if (bytes_read != (size_t)file_size) {
-        show_error(hwnd, "Échec de la lecture complète du fichier", "Erreur Chargement");
+        show_error(hwnd, "Ã‰chec de la lecture complÃ¨te du fichier", "Erreur Chargement");
         secure_clean_and_free(*data, (size_t)file_size + 1);
         *data = NULL;
         *data_len = 0;
@@ -793,7 +793,7 @@ BOOL load_file_secure(const char* filename, unsigned char** data, size_t* data_l
     *data_len = bytes_read;
 
     if (show_success) {
-        MessageBoxA(hwnd, "Fichier chargé avec succès", "Succès", MB_ICONINFORMATION);
+        MessageBoxA(hwnd, "Fichier chargÃ© avec succÃ¨s", "SuccÃ¨s", MB_ICONINFORMATION);
     }
     return TRUE;
 }
