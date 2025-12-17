@@ -1,6 +1,6 @@
 /**
  * Cryptage_Main.c
- * Point d'entrée principal - Version 37 (Interface unique)
+ * Point d'entrée principal - Version 371
  * (c) Bernard DÉMARET - 2025
  */
 
@@ -77,7 +77,7 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     HWND hwnd = CreateWindowExA(
         0,
         "CryptoMainClass",
-        "Cryptage V37 (c) Bernard DÉMARET",
+        "Cryptage V37.1 (c) Bernard DÉMARET",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         900, 800,
