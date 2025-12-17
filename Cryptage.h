@@ -91,7 +91,7 @@
  *   - Tag d'authentification AES-GCM
  */
 
-#define CURRENT_VERSION         371     // Version actuelle : 37.1
+#define CURRENT_VERSION         370     // Version actuelle : 37.1
 #define VERSION                 CURRENT_VERSION
 
 /* ========================================
@@ -348,3 +348,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
 
 #endif /* CRYPTAGE_H */
+
