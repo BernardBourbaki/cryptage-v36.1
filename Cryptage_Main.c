@@ -1,7 +1,7 @@
 /**
  * Cryptage_Main.c
- * Point d'entrée principal - Version 37 (Interface unique)
- * (c) Bernard DÉMARET - 2025
+ * Point d'entrÃ©e principal - Version 37 (Interface unique)
+ * (c) Bernard DÃ‰MARET - 2025
  */
 
 #include "Cryptage.h"
@@ -36,7 +36,7 @@ BOOL init_portable_openssl(void) {
         if (EVP_aes_256_gcm() == NULL) {
             MessageBoxA(NULL, 
                 "Erreur: Algorithme AES-256-GCM non disponible\n\n"
-                "Vérifiez l'installation d'OpenSSL.", 
+                "VÃ©rifiez l'installation d'OpenSSL.", 
                 "Erreur d'initialisation", 
                 MB_ICONERROR
             );
@@ -49,11 +49,11 @@ BOOL init_portable_openssl(void) {
 }
 
 /* ========================================
- * CRÉATION DE LA FENÊTRE PRINCIPALE
+ * CRÃ‰ATION DE LA FENÃŠTRE PRINCIPALE
  * ======================================== */
 
 /**
- * Crée la fenêtre principale de l'application
+ * CrÃ©e la fenÃªtre principale de l'application
  */
 HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     WNDCLASSEXA wc = {0};
@@ -67,7 +67,7 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     
     if (!RegisterClassExA(&wc)) {
         MessageBoxA(NULL, 
-            "Échec de l'enregistrement de la classe de fenêtre", 
+            "Ã‰chec de l'enregistrement de la classe de fenÃªtre", 
             "Erreur", 
             MB_ICONERROR
         );
@@ -77,16 +77,16 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
     HWND hwnd = CreateWindowExA(
         0,
         "CryptoMainClass",
-        "Cryptage V37 (c) Bernard DÉMARET",
+        "Cryptage V37 (c) Bernard DÃ‰MARET",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
-        900, 750,
+        900, 800,
         NULL, NULL, hInstance, &g_AppContext
     );
     
     if (!hwnd) {
         MessageBoxA(NULL, 
-            "Échec de la création de la fenêtre principale", 
+            "Ã‰chec de la crÃ©ation de la fenÃªtre principale", 
             "Erreur", 
             MB_ICONERROR
         );
@@ -100,11 +100,11 @@ HWND create_main_window(HINSTANCE hInstance, int nCmdShow) {
 }
 
 /* ========================================
- * POINT D'ENTRÉE PRINCIPAL
+ * POINT D'ENTRÃ‰E PRINCIPAL
  * ======================================== */
 
 /**
- * Point d'entrée de l'application
+ * Point d'entrÃ©e de l'application
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
                    LPSTR lpCmdLine, int nCmdShow) {
@@ -115,13 +115,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     
 #ifdef NDEBUG
-    // Protection contre le débogage en mode Release
+    // Protection contre le dÃ©bogage en mode Release
     if (IsDebuggerPresent()) {
         MessageBoxA(NULL, 
-            "Débogueur détecté.\n\n"
-            "L'application ne peut pas s'exécuter en mode debug "
-            "pour des raisons de sécurité.", 
-            "Sécurité", 
+            "DÃ©bogueur dÃ©tectÃ©.\n\n"
+            "L'application ne peut pas s'exÃ©cuter en mode debug "
+            "pour des raisons de sÃ©curitÃ©.", 
+            "SÃ©curitÃ©", 
             MB_ICONERROR
         );
         return 1;
@@ -132,10 +132,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     memset(&g_AppContext, 0, sizeof(AppContext));
     RESET_SHARED_STATE(&g_AppContext.state);
     
-    // Initialiser le système de mémoire sécurisée
+    // Initialiser le systÃ¨me de mÃ©moire sÃ©curisÃ©e
     secure_mem_init();
     
-    // Créer la fenêtre principale
+    // CrÃ©er la fenÃªtre principale
     g_AppContext.hwnd = create_main_window(hInstance, nCmdShow);
     
     if (!g_AppContext.hwnd) {
