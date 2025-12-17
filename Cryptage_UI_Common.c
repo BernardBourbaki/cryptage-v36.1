@@ -1,7 +1,7 @@
 /**
  * Cryptage_UI_Common.c
- * Fonctions UI communes - Version 37 (Interface unique)
- * (c) Bernard DÉMARET - 2025
+ * Fonctions UI communes - Version 371
+ * (c) Bernard DÃ‰MARET - 2025
  */
 
 #include "Cryptage.h"
@@ -21,14 +21,14 @@ void show_error(HWND hwnd, const char* message, const char* title) {
 }
 
 /**
- * Affiche un message de succès
+ * Affiche un message de succÃ¨s
  */
 void show_success(HWND hwnd, const char* message, const char* title) {
     MessageBoxA(hwnd, message, title, MB_ICONINFORMATION | MB_OK);
 }
 
 /**
- * Affiche les erreurs OpenSSL détaillées
+ * Affiche les erreurs OpenSSL dÃ©taillÃ©es
  */
 void display_openssl_error(HWND hwnd, const char* operation) {
     char err_msg[256];
@@ -54,7 +54,7 @@ void display_openssl_error(HWND hwnd, const char* operation) {
  * ======================================== */
 
 /**
- * Ouvre une boîte de dialogue pour sélectionner/sauvegarder un fichier
+ * Ouvre une boÃ®te de dialogue pour sÃ©lectionner/sauvegarder un fichier
  */
 BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size, 
                       const char* filter, const char* ext, BOOL save) {
@@ -75,7 +75,7 @@ BOOL open_file_dialog(HWND hwnd, char* filename, size_t filename_size,
  * ======================================== */
 
 /**
- * Met à jour la barre de progression
+ * Met Ã  jour la barre de progression
  */
 void update_progress_bar(HWND hwnd, AppContext* ctx, int percent) {
     if (ctx->hProgressBar) {
@@ -85,7 +85,7 @@ void update_progress_bar(HWND hwnd, AppContext* ctx, int percent) {
 }
 
 /**
- * Réinitialise la barre de progression
+ * RÃ©initialise la barre de progression
  */
 void reset_progress_bar(AppContext* ctx) {
     if (ctx->hProgressBar) {
@@ -98,7 +98,7 @@ void reset_progress_bar(AppContext* ctx) {
  * ======================================== */
 
 /**
- * Bascule la visibilité du mot de passe
+ * Bascule la visibilitÃ© du mot de passe
  */
 void toggle_password_visibility(AppContext* ctx) {
     ctx->pwdVisible = !ctx->pwdVisible;
@@ -110,11 +110,11 @@ void toggle_password_visibility(AppContext* ctx) {
 }
 
 /* ========================================
- * GESTION DE LA MÉMOIRE ARGON2ID
+ * GESTION DE LA MÃ‰MOIRE ARGON2ID
  * ======================================== */
 
 /**
- * Calcule et met à jour la valeur par défaut de la mémoire Argon2id
+ * Calcule et met Ã  jour la valeur par dÃ©faut de la mÃ©moire Argon2id
  * (25% de la RAM disponible, entre 4 Mo et 1024 Mo)
  */
 void update_memory_default(AppContext* ctx) {
@@ -131,14 +131,14 @@ void update_memory_default(AppContext* ctx) {
         ctx->state.default_mem_kib = default_mem_kib;
         ctx->state.mem_kib = default_mem_kib;
     } else {
-        // Valeur par défaut en cas d'échec
+        // Valeur par dÃ©faut en cas d'Ã©chec
         ctx->state.default_mem_kib = DEFAULT_MEMORY_COST_KIB;
         ctx->state.mem_kib = DEFAULT_MEMORY_COST_KIB;
     }
 }
 
 /**
- * Retourne le paramètre mémoire calculé automatiquement
+ * Retourne le paramÃ¨tre mÃ©moire calculÃ© automatiquement
  */
 unsigned int get_memory_param(AppContext* ctx) {
     return ctx->state.mem_kib;
@@ -154,12 +154,12 @@ unsigned int get_memory_param(AppContext* ctx) {
 BOOL save_binary_file_secure(const char* filename, const unsigned char* data, 
                               size_t data_len, HWND hwnd) {
     FILE* fp = fopen(filename, "wb");
-    if (!check_file_operations(fp, "l'ouverture du fichier pour écriture", hwnd)) {
+    if (!check_file_operations(fp, "l'ouverture du fichier pour Ã©criture", hwnd)) {
         return FALSE;
     }
     
     if (fwrite(data, 1, data_len, fp) != data_len) {
-        show_error(hwnd, "Échec de l'écriture des données", 
+        show_error(hwnd, "Ã‰chec de l'Ã©criture des donnÃ©es", 
                    "Erreur Sauvegarde");
         fclose(fp);
         return FALSE;
@@ -167,21 +167,21 @@ BOOL save_binary_file_secure(const char* filename, const unsigned char* data,
     
     if (fclose(fp) != 0) {
         show_error(hwnd, 
-            "Avertissement : échec de la fermeture propre du fichier", 
+            "Avertissement : Ã©chec de la fermeture propre du fichier", 
             "Avertissement");
     }
     
-    show_success(hwnd, "Fichier sauvegardé avec succès !", "Succès");
+    show_success(hwnd, "Fichier sauvegardÃ© avec succÃ¨s !", "SuccÃ¨s");
     return TRUE;
 }
 
 /**
- * Sauvegarde le texte déchiffré
+ * Sauvegarde le texte dÃ©chiffrÃ©
  */
 BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
     int text_len = GetWindowTextLengthA(hOutputEdit);
     if (text_len == 0) {
-        show_error(NULL, "Aucun texte à sauvegarder dans le champ Sortie", 
+        show_error(NULL, "Aucun texte Ã  sauvegarder dans le champ Sortie", 
                    "Erreur Sauvegarde");
         return FALSE;
     }
@@ -201,22 +201,22 @@ BOOL save_decrypted_text_file_secure(const char* filename, HWND hOutputEdit) {
     fclose(fp);
     secure_clean_and_free(text, text_len + 1);
     
-    show_success(NULL, "Texte déchiffré sauvegardé avec succès !", "Succès");
+    show_success(NULL, "Texte dÃ©chiffrÃ© sauvegardÃ© avec succÃ¨s !", "SuccÃ¨s");
     return TRUE;
 }
 
 /**
- * Sauvegarde une image déchiffrée
+ * Sauvegarde une image dÃ©chiffrÃ©e
  */
 BOOL save_image_file_secure(const char* filename, const unsigned char* data, 
                              size_t data_len, const char* extension, HWND hwnd) {
     FILE* fp = fopen(filename, "wb");
-    if (!check_file_operations(fp, "l'ouverture du fichier pour écriture", hwnd)) {
+    if (!check_file_operations(fp, "l'ouverture du fichier pour Ã©criture", hwnd)) {
         return FALSE;
     }
     
     if (fwrite(data, 1, data_len, fp) != data_len) {
-        show_error(hwnd, "Échec de l'écriture des données image", 
+        show_error(hwnd, "Ã‰chec de l'Ã©criture des donnÃ©es image", 
                    "Erreur Sauvegarde Image");
         fclose(fp);
         return FALSE;
@@ -226,18 +226,18 @@ BOOL save_image_file_secure(const char* filename, const unsigned char* data,
     
     char success_msg[512];
     snprintf(success_msg, sizeof(success_msg), 
-             "Image %s sauvegardée avec succès !", extension);
-    show_success(hwnd, success_msg, "Succès");
+             "Image %s sauvegardÃ©e avec succÃ¨s !", extension);
+    show_success(hwnd, success_msg, "SuccÃ¨s");
     
     return TRUE;
 }
 
 /* ========================================
- * DÉTECTION DU TYPE DE FICHIER
+ * DÃ‰TECTION DU TYPE DE FICHIER
  * ======================================== */
 
 /**
- * Détecte le type de fichier à partir des données binaires
+ * DÃ©tecte le type de fichier Ã  partir des donnÃ©es binaires
  */
 FileType detect_file_type(const unsigned char* data, size_t data_len, 
                           AppContext* ctx) {
@@ -245,7 +245,7 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
         return FILE_TYPE_NONE;
     }
     
-    // Vérifier si c'est un fichier crypté V370 (V37)
+    // VÃ©rifier si c'est un fichier cryptÃ© V370 (V37)
     if (data_len >= AAD_LEN + SALT_LEN + NONCE_LEN + TAG_LEN) {
         uint32_t version = read_uint32_le(data);
         uint32_t stored_mem_kib = read_uint32_le(data + 20);
@@ -254,13 +254,13 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
         if (version == CURRENT_VERSION &&
             stored_mem_kib >= 4096 && stored_mem_kib <= 1048576) {
             
-            // Extraire et stocker le paramètre mémoire
+            // Extraire et stocker le paramÃ¨tre mÃ©moire
             ctx->state.mem_kib = stored_mem_kib;
             return FILE_TYPE_CRYPT;
         }
     }
     
-    // Vérifier les formats d'image
+    // VÃ©rifier les formats d'image
     if (data_len >= 8) {
         // JPEG
         if (data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF) {
@@ -293,7 +293,7 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
         }
     }
     
-    // Vérifier si c'est du texte
+    // VÃ©rifier si c'est du texte
     BOOL is_text = TRUE;
     size_t check_len = (data_len < 1024) ? data_len : 1024;
     
@@ -314,28 +314,28 @@ FileType detect_file_type(const unsigned char* data, size_t data_len,
 }
 
 /* ========================================
- * RÉINITIALISATION DE L'ÉTAT
+ * RÃ‰INITIALISATION DE L'Ã‰TAT
  * ======================================== */
 
 /**
- * Réinitialise l'état de déchiffrement après un échec
+ * RÃ©initialise l'Ã©tat de dÃ©chiffrement aprÃ¨s un Ã©chec
  */
 void reset_decrypt_state(AppContext* ctx) {
     ctx->state.decrypt_attempt_failed = FALSE;
 }
 
 /**
- * Efface tous les champs et réinitialise l'état
+ * Efface tous les champs et rÃ©initialise l'Ã©tat
  */
 void handle_clear(AppContext* ctx) {
     if (ctx->state.operation_in_progress) {
         show_error(NULL, 
-            "Une opération est en cours. Impossible d'effacer maintenant.", 
-            "Opération en cours");
+            "Une opÃ©ration est en cours. Impossible d'effacer maintenant.", 
+            "OpÃ©ration en cours");
         return;
     }
     
-    // Réinitialiser l'état
+    // RÃ©initialiser l'Ã©tat
     reset_decrypt_state(ctx);
     RESET_SHARED_STATE(&ctx->state);
     
@@ -344,7 +344,7 @@ void handle_clear(AppContext* ctx) {
     SetWindowTextA(ctx->hInputEdit, "");
     SetWindowTextA(ctx->hOutputEdit, "");
     
-    // Libérer les données
+    // LibÃ©rer les donnÃ©es
     if (ctx->state.loaded_data) {
         secure_free(ctx->state.loaded_data);
         ctx->state.loaded_data = NULL;
@@ -357,19 +357,19 @@ void handle_clear(AppContext* ctx) {
         ctx->state.original_extension_len = 0;
     }
     
-    // Réinitialiser la mémoire à la valeur par défaut
+    // RÃ©initialiser la mÃ©moire Ã  la valeur par dÃ©faut
     ctx->state.mem_kib = ctx->state.default_mem_kib;
     
-    // Réinitialiser la barre de progression
+    // RÃ©initialiser la barre de progression
     reset_progress_bar(ctx);
 }
 
 /* ========================================
- * NETTOYAGE DES OPÉRATIONS CRYPTO
+ * NETTOYAGE DES OPÃ‰RATIONS CRYPTO
  * ======================================== */
 
 /**
- * Nettoie et libère une opération cryptographique
+ * Nettoie et libÃ¨re une opÃ©ration cryptographique
  */
 void cleanup_crypto_operation(CryptoOperation* op) {
     if (!op) return;
@@ -395,11 +395,11 @@ void cleanup_crypto_operation(CryptoOperation* op) {
 }
 
 /* ========================================
- * CRÉATION DES POLICES
+ * CRÃ‰ATION DES POLICES
  * ======================================== */
 
 /**
- * Crée les polices utilisées dans l'interface
+ * CrÃ©e les polices utilisÃ©es dans l'interface
  */
 void create_fonts(AppContext* ctx) {
     // Police Courier New pour les champs de texte
@@ -418,7 +418,7 @@ void create_fonts(AppContext* ctx) {
 }
 
 /**
- * Libère les polices
+ * LibÃ¨re les polices
  */
 void destroy_fonts(AppContext* ctx) {
     if (ctx->hFont) {
